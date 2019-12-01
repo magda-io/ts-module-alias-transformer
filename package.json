@@ -8,7 +8,11 @@
     "test": "mocha --require ts-node/register \"./src/test/**/*.spec.ts\" ",
     "dev": "ts-node src/index.ts",
     "prebuild": "rimraf lib",
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "prepack": "npm run test",
+    "release:patch": "npm version patch && npm publish && git push --follow-tags",
+    "release:minor": "npm version minor && npm publish && git push --follow-tags",
+    "release:major": "npm version major && npm publish && git push --follow-tags"
   },
   "repository": {
     "type": "git",
