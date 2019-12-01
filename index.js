@@ -1,0 +1,1 @@
+throw new Error("this package is for cli usage only.");
