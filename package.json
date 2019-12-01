@@ -9,7 +9,7 @@
     "dev": "ts-node src/index.ts",
     "prebuild": "rimraf lib",
     "build": "tsc -b",
-    "prepack": "npm run test",
+    "prepack": "npm run build && npm run test",
     "release:patch": "npm version patch && npm publish && git push --follow-tags",
     "release:minor": "npm version minor && npm publish && git push --follow-tags",
     "release:major": "npm version major && npm publish && git push --follow-tags"
@@ -70,9 +70,5 @@
     "tmp": "^0.1.0",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.2"
-  },
-  "files": [
-    "lib",
-    "bin"
-  ]
+  }
 }
