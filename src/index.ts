@@ -4,6 +4,7 @@ import transform from "./transform";
 import chalk from "chalk";
 
 program
+    .name("ts-module-alias-transformer")
     .version(pkg.version)
     .description(
         `${pkg.description}
