@@ -1,4 +1,8 @@
 # ts-module-alias-transformer
+
+[![npm version](https://img.shields.io/npm/v/ts-module-alias-transformer.svg)](https://www.npmjs.com/package/ts-module-alias-transformer)
+[![Build Status](https://travis-ci.org/t83714/ts-module-alias-transformer.svg?branch=master)](https://travis-ci.org/t83714/ts-module-alias-transformer)
+
 A cli tool uses Babel to rewrite module name from typescript's build result including .d.ts files.
 
 ### Installation
