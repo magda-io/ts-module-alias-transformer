@@ -11,10 +11,14 @@ program
   [dst]: Optional. The destination directory / file. If not provided, output will replace the <src>.`
     )
     .arguments("<src> [dst]")
-    .action(async (src, dst)=>{
-        try{
-            await transform(src, dst);
-        }catch(e){
+    .option(
+        "-p, --mappingConfigPath <packageJsonPath>",
+        "Optional. Specify the mapping config json file location. \nBy default, will use the package.json in current working directory."
+    )
+    .action(async (src, dst, program) => {
+        try {
+            await transform(src, dst, program.mappingConfigPath);
+        } catch (e) {
             console.log(chalk.red(`Error: ${e}`));
         }
     })

@@ -9,7 +9,7 @@ import chalk from "chalk";
 
 const CONFIG_KEY = "_moduleMappings";
 
-interface MappingConfigType {
+export interface MappingConfigType {
     [key: string]: string;
 }
 
@@ -17,8 +17,8 @@ const DefaultBabelOption = {
     compact: false,
     retainLines: true,
     minified: false,
-    inputSourceMap: undefined,
     sourceMaps: false,
+    comments: true,
     code: true
 };
 
@@ -65,12 +65,27 @@ function getBabelOption(
     }
 }
 
-function getAliasConfig() {
-    const pkgJsonPath = path.resolve("./package.json");
-    if (!fs.existsSync(pkgJsonPath)) {
-        throw new Error("Can't locate package.json.");
+async function getAliasConfig(mappingConfigPath?: string) {
+    let runtimeMappingConfigPath = mappingConfigPath;
+
+    if (runtimeMappingConfigPath) {
+        runtimeMappingConfigPath = path.resolve(runtimeMappingConfigPath);
+        if (!fs.existsSync(runtimeMappingConfigPath)) {
+            throw new Error(
+                `Can't locate package.json at: ${runtimeMappingConfigPath}`
+            );
+        }
+    } else {
+        runtimeMappingConfigPath = "./package.json";
+        runtimeMappingConfigPath = path.resolve(runtimeMappingConfigPath);
+        if (!fs.existsSync(runtimeMappingConfigPath)) {
+            throw new Error(
+                `Can't locate package.json at current working directory.`
+            );
+        }
     }
-    const pkgJson = fse.readJSONSync(pkgJsonPath);
+
+    const pkgJson = await fse.readJSON(runtimeMappingConfigPath);
     if (!pkgJson[CONFIG_KEY]) {
         throw new Error(
             `Can't locate \`${CONFIG_KEY}\` property from package.json.`
@@ -89,7 +104,11 @@ function getAliasConfig() {
     return pkgJson[CONFIG_KEY];
 }
 
-async function transform(src: string, dst?: string) {
+async function transform(
+    src: string,
+    dst?: string,
+    mappingConfigPath?: string
+) {
     const srcPath = slash(path.resolve(src));
     if (!fs.existsSync(srcPath)) {
         throw new Error(`Src path: \`${src}\` doesn't exist.`);
@@ -113,9 +132,10 @@ async function transform(src: string, dst?: string) {
         }
 
         srcList = await recursiveReadDir(srcPath, [
-            (file, stats) => {
+            (filePath, stats) => {
                 if (!stats.isDirectory()) {
-                    const ext = file
+                    const fileName = path.basename(filePath);
+                    const ext = fileName
                         .split(".")
                         .slice(1)
                         .join(".");
@@ -130,7 +150,7 @@ async function transform(src: string, dst?: string) {
         srcList = [srcPath];
     }
 
-    const mappingConfig = getAliasConfig();
+    const mappingConfig = await getAliasConfig(mappingConfigPath);
     let processCount = 0;
 
     for (let i = 0; i < srcList.length; i++) {

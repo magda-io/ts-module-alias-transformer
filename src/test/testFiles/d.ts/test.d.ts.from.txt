@@ -1,0 +1,4 @@
+/// <reference types="a/b/c/moduleA" />
+import test from "a/b/c/moduleB";
+declare function transform(src: string, dst?: string, mappingConfigPath?: string): Promise<void>;
+export default transform;

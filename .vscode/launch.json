@@ -14,8 +14,24 @@
             ],
             "args": [
                 "${workspaceRoot}/src/index.ts",
+                "-p",
+                "./package.json",
                 "./testFiles",
-                //"./testFilesTo"
+                "./testFilesTo"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Test Cases",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "src/test/**/*.spec.ts"
             ],
             "cwd": "${workspaceRoot}"
         }

@@ -1,0 +1,4 @@
+/// <reference types="@m1/a/b/c/dist/moduleA" />
+import test from "@m1/a/b/c/dist/moduleB";
+declare function transform(src: string, dst?: string, mappingConfigPath?: string): Promise<void>;
+export default transform;
