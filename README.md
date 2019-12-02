@@ -5,6 +5,11 @@
 
 A cli tool uses Babel to rewrite module name from typescript's build result including .d.ts files.
 
+It uses 
+- [@babel/core](https://www.npmjs.com/package/@babel/core) to parse built js files
+- [@babel/plugin-syntax-typescript](https://www.npmjs.com/package/@babel/plugin-syntax-typescript) to parse `.d.ts` files
+- and use [babel-plugin-module-resolver](https://github.com/tleunen/babel-plugin-module-resolver) to replace module path in your typescript build result (either `.js` or `.d.ts` files).
+
 ### Installation
 
 ```bash
