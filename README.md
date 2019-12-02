@@ -28,6 +28,27 @@ A cli tool uses Babel to rewrite module name from typescript's build result incl
 Options:
   -V, --version                              output the version number
   -p, --mappingConfigPath <packageJsonPath>  Optional. Specify the mapping config json file location. 
-                                             By default, will use the package.json in current working directory.
+                                             By default, it will read the `_moduleMappings` field of package.json in current working 
+                                             directory to determine the module paths to replace. 
+                                             See https://github.com/t83714/ts-module-alias-transformer for more details.
   -h, --help                                 output usage information
 ```
+
+### Configuration
+ 
+ By default, it will read the `_moduleMappings` field of package.json in current working directory to determine the module paths to replace (unless the switch `-p` is provided to specify an alternative config file location). 
+ 
+ e.g. Here is an example:
+
+```json
+{
+  "name": "....",
+  "version": "1.0.0",
+  "description": "...",
+  "_moduleMappings": {
+      "@a/b/c": "../../a/b/c",
+      "@x/y/z": "../d/e/f"
+  }
+}
+```
+

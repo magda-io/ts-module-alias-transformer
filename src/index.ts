@@ -14,7 +14,9 @@ program
     .arguments("<src> [dst]")
     .option(
         "-p, --mappingConfigPath <packageJsonPath>",
-        "Optional. Specify the mapping config json file location. \nBy default, will use the package.json in current working directory."
+        "Optional. Specify the mapping config json file location. \n"+
+        "By default, it will read the `_moduleMappings` field of package.json in current working directory to determine the module paths to replace. \n"+
+        "See https://github.com/t83714/ts-module-alias-transformer for more details."
     )
     .action(async (src, dst, program) => {
         try {
