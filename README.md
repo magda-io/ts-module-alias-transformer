@@ -10,7 +10,7 @@ It uses
 - [@babel/plugin-syntax-typescript](https://www.npmjs.com/package/@babel/plugin-syntax-typescript) to parse `.d.ts` files
 - and use [babel-plugin-module-resolver](https://github.com/tleunen/babel-plugin-module-resolver) to replace module path in your typescript build result (either `.js` or `.d.ts` files).
 
-This command line tool is bundled with all dependencies (including @babel/core). Thus, it doesn't require installing any dependencies and won't populate the dependency tree in your local project.
+This command line tool is bundled with all dependencies (including @babel/core). Thus, it doesn't require installing any dependencies and won't pollute the dependency tree in your local project.
 
 ### Installation
 
