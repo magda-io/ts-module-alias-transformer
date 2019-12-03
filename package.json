@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/t83714/ts-module-alias-transformer#readme",
   "dependencies": {},
-  "private": true,
+  "private": false,
   "bin": {
     "ts-module-alias-transformer": "./bin/index.js"
   },
