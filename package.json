@@ -6,9 +6,9 @@
     "run": "node ./bin/index.js",
     "eslint": "eslint ./src/**/*.ts",
     "test": "mocha --require ts-node/register \"./src/test/**/*.spec.ts\" ",
-    "dev": "ts-node src/index.ts",
+    "dev": "NODE_ENV=production;ts-node src/index.ts",
     "prebuild": "rimraf lib",
-    "build": "tsc -b",
+    "build": "webpack",
     "prepack": "npm run build && npm run test",
     "release:patch": "npm version patch && npm publish && git push --follow-tags",
     "release:minor": "npm version minor && npm publish && git push --follow-tags",
@@ -30,20 +30,7 @@
     "url": "https://github.com/t83714/ts-module-alias-transformer/issues"
   },
   "homepage": "https://github.com/t83714/ts-module-alias-transformer#readme",
-  "dependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/plugin-syntax-typescript": "^7.7.4",
-    "add": "^2.0.6",
-    "babel-plugin-module-resolver": "^3.2.0",
-    "chalk": "^3.0.0",
-    "commander": "^4.0.1",
-    "fs-extra": "^8.1.0",
-    "lodash": "^4.17.15",
-    "make-dir": "^3.0.0",
-    "recursive-readdir": "^2.2.2",
-    "slash": "^3.0.0",
-    "yarn": "^1.19.2"
-  },
+  "dependencies": {},
   "private": true,
   "bin": {
     "ts-module-alias-transformer": "./bin/index.js"
@@ -68,7 +55,20 @@
     "prettier": "^1.19.1",
     "rimraf": "^3.0.0",
     "tmp": "^0.1.0",
+    "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "@babel/core": "^7.7.4",
+    "@babel/plugin-syntax-typescript": "^7.7.4",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "chalk": "^3.0.0",
+    "commander": "^4.0.1",
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.15",
+    "make-dir": "^3.0.0",
+    "recursive-readdir": "^2.2.2",
+    "slash": "^3.0.0"
   }
 }

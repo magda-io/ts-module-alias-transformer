@@ -229,11 +229,8 @@ async function transformFile(
 ) {
     const isTsFile = isTsDefinitionFile(filePath);
     const babelOptions = getBabelOption(filePath, mappingConfig, isTsFile);
-    const nodeEnv = process.env.NODE_ENV;
 
-    process.env.NODE_ENV = "production";
     const result = await babel.transformFileAsync(filePath, babelOptions);
-    process.env.NODE_ENV = nodeEnv;
 
     if (!result?.code) {
         console.log(chalk.yellow(`Input ${filePath} has no output.`));

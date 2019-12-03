@@ -93,6 +93,9 @@ async function testDir(dirPath: string, mappingOptions: MappingConfigType) {
 }
 
 describe("Test Process Test Files", async () => {
+    
+    process.env.NODE_ENV = "production";
+
     it("es5 target code should be processed correctly", async () => {
         await testDir(
             path.resolve(__dirname, "./testFiles/es5"),
