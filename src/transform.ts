@@ -6,6 +6,7 @@ import recursiveReadDir from "recursive-readdir";
 import slash from "slash";
 import * as babel from "@babel/core";
 import chalk from "chalk";
+import "@babel/plugin-syntax-typescript";
 
 const CONFIG_KEY = "_moduleMappings";
 
