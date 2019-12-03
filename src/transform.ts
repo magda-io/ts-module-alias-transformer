@@ -1,3 +1,5 @@
+/// <reference types="./missing" />
+
 import fs from "fs";
 import fse from "fs-extra";
 import path from "path";
@@ -6,7 +8,8 @@ import recursiveReadDir from "recursive-readdir";
 import slash from "slash";
 import * as babel from "@babel/core";
 import chalk from "chalk";
-import "@babel/plugin-syntax-typescript";
+import typescriptSyntaxPlugin from "@babel/plugin-syntax-typescript";
+import moduleResolverPlugin from "babel-plugin-module-resolver";
 
 const CONFIG_KEY = "_moduleMappings";
 
@@ -41,7 +44,7 @@ function getBabelOption(
             ...DefaultBabelOption,
             plugins: [
                 [
-                    "module-resolver",
+                    moduleResolverPlugin,
                     {
                         root: [path.dirname(filePath)],
                         alias: { ...mappingConfig }
@@ -53,9 +56,9 @@ function getBabelOption(
         return {
             ...DefaultBabelOption,
             plugins: [
-                "@babel/plugin-syntax-typescript",
+                typescriptSyntaxPlugin,
                 [
-                    "module-resolver",
+                    moduleResolverPlugin,
                     {
                         root: [path.dirname(filePath)],
                         alias: { ...mappingConfig }
