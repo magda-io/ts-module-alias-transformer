@@ -1,7 +1,9 @@
-import program from "commander";
-import pkg from "../package.json";
-import transform from "./transform";
+import { program } from "commander";
+import { require } from "./esmUtils.js";
+import transform from "./transform.js";
 import chalk from "chalk";
+
+const pkg = require("../package.json");
 
 program
     .name("ts-module-alias-transformer")
@@ -14,9 +16,9 @@ program
     .arguments("<src> [dst]")
     .option(
         "-p, --mappingConfigPath <packageJsonPath>",
-        "Optional. Specify the mapping config json file location. \n"+
-        "By default, it will read the `_moduleMappings` field of package.json in current working directory to determine the module paths to replace. \n"+
-        "See https://github.com/t83714/ts-module-alias-transformer for more details."
+        "Optional. Specify the mapping config json file location. \n" +
+            "By default, it will read the `_moduleMappings` field of package.json in current working directory to determine the module paths to replace. \n" +
+            "See https://github.com/t83714/ts-module-alias-transformer for more details."
     )
     .action(async (src, dst, program) => {
         try {

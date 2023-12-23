@@ -2,11 +2,14 @@ import {} from "mocha";
 import { expect } from "chai";
 import childProcess from "child_process";
 import recursiveReadDir from "recursive-readdir";
-import { MappingConfigType } from "../transform";
+import { MappingConfigType } from "../transform.js";
 import tmp from "tmp";
 import fs from "fs-extra";
 import path from "path";
 import _ from "lodash";
+import { __dirname as getCurrentDirName, requireResolve } from "../esmUtils.js";
+
+const __dirname = getCurrentDirName();
 
 const DIR_CREATE_OPTIONS = {
     unsafeCleanup: true
@@ -34,10 +37,7 @@ async function testDir(dirPath: string, mappingOptions: MappingConfigType) {
         (filePath, stats) => {
             if (!stats.isDirectory()) {
                 const fileName = path.basename(filePath);
-                const ext = fileName
-                    .split(".")
-                    .slice(1)
-                    .join(".");
+                const ext = fileName.split(".").slice(1).join(".");
                 if (testFileExtList.indexOf(ext) !== -1) {
                     return false;
                 } else {
@@ -49,7 +49,7 @@ async function testDir(dirPath: string, mappingOptions: MappingConfigType) {
     ]);
 
     testFileList = _.uniq(
-        testFileList.map(filePath => {
+        testFileList.map((filePath) => {
             const fileName = path.basename(filePath);
             const fileParts = fileName.split(".");
             const basename = fileParts.slice(0, -2).join(".");
@@ -57,7 +57,7 @@ async function testDir(dirPath: string, mappingOptions: MappingConfigType) {
         })
     );
 
-    const resultFileList = testFileList.map(filePath => {
+    const resultFileList = testFileList.map((filePath) => {
         const basename = path.basename(filePath);
         const targetFile = path.join(srcDir.name, basename);
         fs.copyFileSync(`${filePath}.from.txt`, targetFile);
@@ -65,11 +65,11 @@ async function testDir(dirPath: string, mappingOptions: MappingConfigType) {
     });
 
     const tsconfigPath = path.resolve("tsconfig.json");
-    const tsNodeExec = require.resolve("ts-node/dist/bin.js");
+    const tsNodeExec = requireResolve("ts-node/dist/bin.js");
     const entryPoint = path.resolve(__dirname, "../index.ts");
 
     childProcess.execSync(
-        `${tsNodeExec} ${entryPoint} -p ${configFile.name} ${srcDir.name} ${dstDir.name}`,
+        `${tsNodeExec} --esm ${entryPoint} -p ${configFile.name} ${srcDir.name} ${dstDir.name}`,
         {
             stdio: "inherit",
             cwd: path.dirname(tsconfigPath),
@@ -94,6 +94,15 @@ async function testDir(dirPath: string, mappingOptions: MappingConfigType) {
 
 describe("Test Process Test Files", async () => {
     process.env.NODE_ENV = "production";
+
+    it("es2022-esm target code should be processed correctly", async () => {
+        await testDir(
+            path.resolve(__dirname, "./testFiles/es2022-esm"),
+            {
+                "magda-typescript-common/src": "@magda/typescript-common/dist"
+            }
+        );
+    }).timeout(30000);
 
     it("es5 target code should be processed correctly", async () => {
         await testDir(
