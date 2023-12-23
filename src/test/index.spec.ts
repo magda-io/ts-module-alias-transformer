@@ -96,12 +96,9 @@ describe("Test Process Test Files", async () => {
     process.env.NODE_ENV = "production";
 
     it("es2022-esm target code should be processed correctly", async () => {
-        await testDir(
-            path.resolve(__dirname, "./testFiles/es2022-esm"),
-            {
-                "magda-typescript-common/src": "@magda/typescript-common/dist"
-            }
-        );
+        await testDir(path.resolve(__dirname, "./testFiles/es2022-esm"), {
+            "magda-typescript-common/src": "@magda/typescript-common/dist"
+        });
     }).timeout(30000);
 
     it("es5 target code should be processed correctly", async () => {
