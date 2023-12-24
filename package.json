@@ -1,14 +1,14 @@
 {
   "name": "ts-module-alias-transformer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A cli tool uses Babel to rewrite module name from typescript's build result including .d.ts files.",
   "type": "module",
-  "exports": "./dist/index.js",
+  "exports": "./dist/index.cjs",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=16.0.0"
   },
   "scripts": {
-    "run": "node ./bin/index.js",
+    "run": "node ./bin/index.cjs",
     "eslint": "eslint ./src/**/*.ts",
     "test": "mocha",
     "dev": "NODE_ENV=production;ts-node src/index.ts",
@@ -37,7 +37,7 @@
   "homepage": "https://github.com/t83714/ts-module-alias-transformer#readme",
   "private": false,
   "bin": {
-    "ts-module-alias-transformer": "./bin/index.js"
+    "ts-module-alias-transformer": "./bin/index.cjs"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",
