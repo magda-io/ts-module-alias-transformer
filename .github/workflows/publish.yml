@@ -18,15 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Node.js 24 bundles npm >= 11.16, which supports OIDC trusted publishing
+      # out of the box. We deliberately avoid `npm install -g npm@latest` here:
+      # self-upgrading the toolcache npm leaves its `sigstore` dependency
+      # missing, which breaks `--provenance` ("Cannot find module 'sigstore'").
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
-
-      # OIDC trusted publishing requires npm >= 11.5.1, newer than the npm
-      # bundled with Node.js 22.
-      - name: Upgrade npm
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
