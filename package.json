@@ -1,6 +1,6 @@
 {
   "name": "ts-module-alias-transformer",
-  "version": "3.0.0",
+  "version": "3.0.0-alpha.0",
   "description": "A cli tool uses Babel to rewrite module name from typescript's build result including .d.ts files.",
   "type": "module",
   "exports": "./dist/index.cjs",
