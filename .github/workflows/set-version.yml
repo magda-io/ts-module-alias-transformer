@@ -1,0 +1,68 @@
+name: Set version
+
+# Manually triggered from the GitHub "Actions" tab. Sets the `version` field in
+# package.json to the supplied value and commits it to the branch the workflow
+# was run against. Create a matching GitHub release afterwards to trigger publish.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New version (semver, e.g. v3.0.0-alpha.2)"
+        required: true
+        type: string
+
+permissions:
+  contents: write # required to push the version-bump commit
+
+jobs:
+  bump:
+    name: Bump package.json version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate version input
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          node <<'EOF'
+          const input = (process.env.INPUT_VERSION || "").trim();
+          const version = input.replace(/^v/, "");
+          // Official SemVer 2.0.0 regex (https://semver.org)
+          const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+          if (!semver.test(version)) {
+            console.error(`::error::"${input}" is not a valid semantic version (e.g. v3.0.0 or v3.0.0-alpha.2).`);
+            process.exit(1);
+          }
+          console.log(version);
+          EOF
+
+      - name: Bump version in package.json
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          VERSION="${INPUT_VERSION#v}"
+          # `npm version` preserves the file's existing formatting and only edits
+          # the version field. --allow-same-version avoids failing on a no-op.
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+
+      - name: Commit & push
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          VERSION="${INPUT_VERSION#v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- package.json; then
+            echo "package.json version already ${VERSION}; nothing to commit."
+            exit 0
+          fi
+          git add package.json
+          git commit -m "chore: bump version to v${VERSION}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

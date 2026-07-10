@@ -24,7 +24,12 @@ program
         try {
             await transform(src, dst, program.mappingConfigPath);
         } catch (e) {
-            console.log(chalk.red(`Error: ${e}`));
+            console.log(
+                chalk.red(`Error: ${e instanceof Error ? e.message : e}`)
+            );
+            // Fail loudly: a transform error must produce a non-zero exit code
+            // so build pipelines don't ship a partially-rewritten bundle.
+            process.exitCode = 1;
         }
     })
     .parse(process.argv);

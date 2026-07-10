@@ -4,15 +4,15 @@ on: push
 
 
 jobs:
-  build-test-eslint-node-18:
+  build-test-eslint-node-22:
     name: Build, Test & Eslint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 18
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
         with:
-          node-version: "18.16.0"
+          node-version: "22"
       - run: yarn install
       - run: yarn build
       - run: yarn test

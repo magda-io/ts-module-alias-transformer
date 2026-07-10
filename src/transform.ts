@@ -23,7 +23,11 @@ const DefaultBabelOption = {
     minified: false,
     sourceMaps: false,
     comments: true,
-    code: true
+    code: true,
+    // Don't let a consumer's babel config (babel.config.*, .babelrc) interfere
+    // with parsing. We only want the plugins we specify below to be active.
+    configFile: false,
+    babelrc: false
 };
 
 function isTsDefinitionFile(filePath: string) {
@@ -56,7 +60,10 @@ function getBabelOption(
         return {
             ...DefaultBabelOption,
             plugins: [
-                typescriptSyntaxPlugin,
+                // `dts: true` is required to parse declaration-only syntax
+                // (e.g. `export default interface`, ambient `declare`,
+                // `readonly` class fields) found in `.d.ts` files.
+                [typescriptSyntaxPlugin, { dts: true }],
                 [
                     moduleResolverPlugin,
                     {
@@ -156,25 +163,52 @@ async function transform(
 
     const mappingConfig = await getAliasConfig(mappingConfigPath);
     let processCount = 0;
+    const failedFiles: string[] = [];
 
+    // Process every file independently. A parse error on one file must not
+    // abort the whole run and leave sibling files silently un-rewritten
+    // (which would produce a broken build output). We collect failures and
+    // surface them as a hard error after all files have been attempted.
     for (let i = 0; i < srcList.length; i++) {
-        const result = await transformFile(
-            slash(srcList[i]),
-            srcPath,
-            isSrcDirectory,
-            dstPath,
-            isDstDirectory,
-            mappingConfig
-        );
-        if (result) {
-            processCount++;
+        const filePath = slash(srcList[i]);
+        try {
+            const result = await transformFile(
+                filePath,
+                srcPath,
+                isSrcDirectory,
+                dstPath,
+                isDstDirectory,
+                mappingConfig
+            );
+            if (result) {
+                processCount++;
+            }
+        } catch (e) {
+            failedFiles.push(filePath);
+            console.log(
+                chalk.red(
+                    `Failed to transform \`${filePath}\`: ${
+                        e instanceof Error ? e.message : e
+                    }`
+                )
+            );
         }
     }
 
     console.log(`Successfully compiled ${processCount} files with Babel.`);
+
+    if (failedFiles.length) {
+        throw new Error(
+            `Failed to transform ${failedFiles.length} file(s):\n` +
+                failedFiles.map((f) => `  - ${f}`).join("\n")
+        );
+    }
 }
 
-const directiveRegEx = /^\/\/\/\s*<reference\s+types="([^"]+)"\s*\/>/gim;
+// Matches triple-slash `/// <reference types="..." />` directives, capturing
+// the type path plus any trailing attributes (e.g. `resolution-mode="require"`)
+// so they are preserved when the type path is remapped.
+const directiveRegEx = /^\/\/\/\s*<reference\s+types="([^"]+)"([^>]*)\/>/gim;
 
 function processMappingConfig(
     modulePath: string,
@@ -199,11 +233,11 @@ function processMappingConfig(
 function processTypeDirective(code: string, mappingConfig: MappingConfigType) {
     return code.replace(
         directiveRegEx,
-        (match, typePath: string) =>
+        (match, typePath: string, rest: string) =>
             `/// <reference types="${processMappingConfig(
                 typePath,
                 mappingConfig
-            )}" />`
+            )}"${rest}/>`
     );
 }
 

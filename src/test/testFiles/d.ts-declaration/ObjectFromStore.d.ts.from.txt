@@ -1,0 +1,8 @@
+/// <reference types="node" resolution-mode="require" />
+/// <reference types="a/b/c/custom-types" resolution-mode="require" />
+import Stream from "a/b/c/stream";
+import { Readable } from "a/b/c/readable";
+export default interface ObjectFromStore {
+    createStream(): Promise<Stream>;
+    readonly reader: Readable;
+}
