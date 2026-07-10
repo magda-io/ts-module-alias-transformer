@@ -18,15 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Node.js 24 bundles npm >= 11.16, which supports OIDC trusted publishing
+      # out of the box. We deliberately avoid `npm install -g npm@latest` here:
+      # self-upgrading the toolcache npm leaves its `sigstore` dependency
+      # missing, which breaks `--provenance` ("Cannot find module 'sigstore'").
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
-
-      # OIDC trusted publishing requires npm >= 11.5.1, newer than the npm
-      # bundled with Node.js 22.
-      - name: Upgrade npm
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -63,4 +62,18 @@ jobs:
         run: yarn eslint
 
       - name: Publish to npm
-        run: npm publish --provenance --access public
+        # For a pre-release version (e.g. 3.0.0-alpha.0) npm refuses to publish
+        # without an explicit dist-tag, and we must NOT tag it `latest`. Publish
+        # pre-releases under a dist-tag named after the first pre-release
+        # identifier (alpha/beta/rc/pr); stable versions publish as `latest`.
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$VERSION" == *-* ]]; then
+            PRE="${VERSION#*-}"
+            DIST_TAG="${PRE%%.*}"
+            echo "Publishing pre-release $VERSION under dist-tag '$DIST_TAG'"
+            npm publish --provenance --access public --tag "$DIST_TAG"
+          else
+            echo "Publishing stable $VERSION as 'latest'"
+            npm publish --provenance --access public
+          fi
