@@ -62,4 +62,18 @@ jobs:
         run: yarn eslint
 
       - name: Publish to npm
-        run: npm publish --provenance --access public
+        # For a pre-release version (e.g. 3.0.0-alpha.0) npm refuses to publish
+        # without an explicit dist-tag, and we must NOT tag it `latest`. Publish
+        # pre-releases under a dist-tag named after the first pre-release
+        # identifier (alpha/beta/rc/pr); stable versions publish as `latest`.
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$VERSION" == *-* ]]; then
+            PRE="${VERSION#*-}"
+            DIST_TAG="${PRE%%.*}"
+            echo "Publishing pre-release $VERSION under dist-tag '$DIST_TAG'"
+            npm publish --provenance --access public --tag "$DIST_TAG"
+          else
+            echo "Publishing stable $VERSION as 'latest'"
+            npm publish --provenance --access public
+          fi

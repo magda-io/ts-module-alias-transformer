@@ -35,7 +35,7 @@
   "homepage": "https://github.com/magda-io/ts-module-alias-transformer#readme",
   "private": false,
   "bin": {
-    "ts-module-alias-transformer": "./bin/index.cjs"
+    "ts-module-alias-transformer": "bin/index.cjs"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",
