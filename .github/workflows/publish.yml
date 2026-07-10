@@ -1,0 +1,66 @@
+name: Publish to npm
+
+# Triggered when a release is published from the GitHub "Create / Draft a new
+# release" form (including publishing an existing draft). Publishes to npm using
+# OIDC trusted publishing (no NPM_TOKEN secret required).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # required for npm OIDC trusted publishing & provenance
+
+jobs:
+  publish:
+    name: Build, verify & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      # OIDC trusted publishing requires npm >= 11.5.1, newer than the npm
+      # bundled with Node.js 22.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify release tag is valid semver and matches package.json
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          node <<'EOF'
+          const fs = require("fs");
+          const tag = (process.env.TAG_NAME || "").trim();
+          const version = tag.replace(/^v/, "");
+          // Official SemVer 2.0.0 regex (https://semver.org)
+          const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+          if (!semver.test(version)) {
+            console.error(`::error::Release tag "${tag}" is not a valid semantic version (e.g. v3.0.0 or v3.0.0-alpha.2).`);
+            process.exit(1);
+          }
+          const pkg = JSON.parse(fs.readFileSync("./package.json", "utf8"));
+          if (pkg.version !== version) {
+            console.error(`::error::package.json version (${pkg.version}) does not match release tag (${tag} -> ${version}).`);
+            process.exit(1);
+          }
+          console.log(`Version OK: ${version}`);
+          EOF
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test
+
+      - name: Lint
+        run: yarn eslint
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
