@@ -152,7 +152,8 @@ npm does not allow republishing a version that already exists. If you need to re
 ### OIDC / trusted publishing failures
 
 - The publish job needs `permissions: id-token: write` (already set in `publish.yml`).
-- Trusted publishing requires npm ≥ 11.5.1; the workflow upgrades npm before publishing.
+- Trusted publishing requires npm ≥ 11.5.1; the workflow runs on Node.js 24, whose bundled npm meets this (avoiding a fragile `npm install -g npm@latest`, which can leave `sigstore` missing and break provenance).
+- Pre-release versions are published under a dist-tag (`alpha`/`beta`/`rc`/`pr`), never `latest`; npm requires an explicit `--tag` for a pre-release. Install one with `npm install ts-module-alias-transformer@<tag>` (e.g. `@alpha`).
 - The trusted publisher configured on npm must match this repo (`magda-io/ts-module-alias-transformer`) and the workflow filename (`publish.yml`). If either changes, update the trusted-publisher settings on the npm package page.
 - Provenance requires `package.json` `repository.url` to point at this repo; a mismatch fails the publish.
 
